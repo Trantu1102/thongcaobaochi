@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getVersion } from "@tauri-apps/api/app";
 import {
   MODELS,
   PROVIDERS,
@@ -23,11 +24,13 @@ export default function Settings() {
   );
   const [customModel, setCustomModel] = useState(getCustomModel(getProvider()));
   const [embedded, setEmbedded] = useState<string | null>(null);
+  const [version, setVersion] = useState("");
 
   const providerInfo = PROVIDERS.find((p) => p.id === provider)!;
 
   useEffect(() => {
     embeddedProvider().then(setEmbedded);
+    getVersion().then(setVersion).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -52,7 +55,9 @@ export default function Settings() {
 
   return (
     <div className="settings">
-      <h2>Cài đặt</h2>
+      <h2>
+        Cài đặt {version && <span className="version-tag">Autowrite v{version}</span>}
+      </h2>
 
       <section>
         <h3>Nhà cung cấp API</h3>

@@ -344,6 +344,11 @@ button.danger:hover { border-color: #d33; color: #d33; }
 /* ---- settings ---- */
 .settings { max-width: 620px; margin: 0 auto; padding: 28px 24px; overflow-y: auto; height: 100%; }
 .settings h2 { margin-top: 0; }
+.version-tag {
+  font-size: 12px; font-weight: 600; color: var(--muted);
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 3px 8px; margin-left: 10px; vertical-align: middle;
+}
 .settings section {
   background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
   padding: 16px 18px; margin-bottom: 16px;
