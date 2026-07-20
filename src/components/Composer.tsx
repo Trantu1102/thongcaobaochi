@@ -1,14 +1,14 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { generate, suggestBrief } from "../api";
 import { Field, FORM_FIELDS, MAIN_FIELDS, MORE_FIELDS, buildBrief, missingRequired } from "../engines";
-import { mdToHtml, stripMd } from "../lib/md";
+import { fixVN, mdToHtml, stripMd } from "../lib/md";
 import RichEditor from "./RichEditor";
 
 type Status = "idle" | "streaming" | "done" | "error";
 
 /** Render read-only: tô sáng 【…】 và in đậm **…** */
 function renderRich(raw: string) {
-  const text = raw.normalize("NFC");
+  const text = fixVN(raw);
   const tokens = text.split(/(【[^】]*】|\*\*[^*]+\*\*)/g);
   return tokens.map((t, i) => {
     if (t.startsWith("【") && t.endsWith("】"))
@@ -107,7 +107,7 @@ export default function Composer() {
   }, [editKey]);
 
   function fieldEl(f: Field) {
-    const val = (values[f.key] || "").normalize("NFC");
+    const val = fixVN(values[f.key] || "");
     return (
       <div key={f.key} className={"field" + (f.half ? " field-half" : "")}>
         <span>
@@ -197,7 +197,7 @@ export default function Composer() {
     try {
       await generate("press_release", buildBrief(values), draft, (e) => {
         if (e.type === "delta") {
-          setPrText((prev) => (prev + e.text).normalize("NFC"));
+          setPrText((prev) => fixVN(prev + e.text));
           outRef.current?.scrollTo({ top: 0 });
         } else if (e.type === "error") {
           setPrError(e.message);
@@ -227,7 +227,7 @@ export default function Composer() {
     try {
       await generate(id, brief, draft, (e) => {
         if (e.type === "delta") {
-          setResults((prev) => ({ ...prev, [id]: ((prev[id] || "") + e.text).normalize("NFC") }));
+          setResults((prev) => ({ ...prev, [id]: fixVN((prev[id] || "") + e.text) }));
           outRef.current?.scrollTo({ top: outRef.current.scrollHeight });
         } else if (e.type === "error") {
           setErrors((prev) => ({ ...prev, [id]: e.message }));
@@ -268,7 +268,7 @@ export default function Composer() {
     setTab("seo");
     try {
       await generate("seo", article, false, (e) => {
-        if (e.type === "delta") setSeoText((prev) => (prev + e.text).normalize("NFC"));
+        if (e.type === "delta") setSeoText((prev) => fixVN(prev + e.text));
         else if (e.type === "error") setSeoError(e.message);
       });
       setSeoStatus("done");
@@ -538,7 +538,7 @@ export default function Composer() {
             <textarea
               className="modal-editor"
               autoFocus
-              value={(values[editField.key] || "").normalize("NFC")}
+              value={fixVN(values[editField.key] || "")}
               onChange={(e) => onChange(editField.key, e.target.value)}
             />
             <div className="modal-footer">

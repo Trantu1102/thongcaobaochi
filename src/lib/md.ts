@@ -5,9 +5,15 @@ function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+/** Sửa lỗi tách dấu tiếng Việt: xóa mọi khoảng trắng chen trước dấu kết hợp, rồi ghép NFC */
+export function fixVN(s: string): string {
+  // \s bắt cả dấu cách thường, tab, non-breaking space… đứng trước dấu kết hợp (Mn)
+  return s.replace(/[^\S\r\n]+(\p{Mn})/gu, "$1").normalize("NFC");
+}
+
 /** markdown -> HTML: 【x】 thành đoạn bôi vàng (bỏ dấu ngoặc), **x** thành đậm, \n thành <br> */
 export function mdToHtml(md: string): string {
-  const esc = escapeHtml(md.normalize("NFC"));
+  const esc = escapeHtml(fixVN(md));
   // 【...】 -> <mark> bôi vàng, bỏ luôn cặp ngoặc; kèm inline style để dán ra Word vẫn giữ màu
   const marked = esc.replace(
     /【([^】]*)】/g,
@@ -39,8 +45,7 @@ export function htmlToMd(root: HTMLElement): string {
 
 /** Bỏ dấu markdown để có bản text thuần (cho clipboard text/plain) */
 export function stripMd(md: string): string {
-  return md
-    .normalize("NFC")
+  return fixVN(md)
     .replace(/\*\*(.+?)\*\*/g, "$1")
     .replace(/【([^】]*)】/g, "$1");
 }

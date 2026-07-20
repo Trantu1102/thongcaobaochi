@@ -1,4 +1,5 @@
 import { invoke, Channel } from "@tauri-apps/api/core";
+import { fixVN } from "./lib/md";
 
 export type StreamEvent =
   | { type: "delta"; text: string }
@@ -100,7 +101,7 @@ export async function suggestBrief(hint: string): Promise<Record<string, string>
     if (e.type === "delta") text += e.text;
     else if (e.type === "error") throw new Error(e.message);
   });
-  text = text.normalize("NFC");
+  text = fixVN(text);
   const s = text.indexOf("{");
   const en = text.lastIndexOf("}");
   if (s < 0 || en < 0) throw new Error("Không đọc được kết quả gợi ý. Thử lại nhé.");

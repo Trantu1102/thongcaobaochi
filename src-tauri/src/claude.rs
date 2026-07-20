@@ -3,9 +3,19 @@ use unicode_normalization::UnicodeNormalization;
 
 const API_URL: &str = "https://api.anthropic.com/v1/messages";
 
-/// Chuẩn hóa tiếng Việt về dạng NFC (ghép dấu vào chữ) để không bị tách dấu khi hiển thị.
+/// Sửa lỗi tách dấu tiếng Việt: xóa khoảng trắng chen ngay trước dấu kết hợp
+/// (U+0300..=U+036F), rồi chuẩn hóa NFC (ghép dấu vào chữ).
 fn nfc(s: &str) -> String {
-    s.nfc().collect()
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        if ('\u{0300}'..='\u{036F}').contains(&c) {
+            while out.ends_with(' ') || out.ends_with('\t') {
+                out.pop();
+            }
+        }
+        out.push(c);
+    }
+    out.nfc().collect()
 }
 const OPENROUTER_URL: &str = "https://openrouter.ai/api/v1/chat/completions";
 
