@@ -30,4 +30,5 @@ keyring = { version = "3", features = ["apple-native", "windows-native"] }
 rusqlite = { version = "0.32", features = ["bundled"] }
 aes-gcm = "0.10"
 base64 = "0.22"
+unicode-normalization = "0.1"
 

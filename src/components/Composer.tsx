@@ -107,7 +107,7 @@ export default function Composer() {
   }, [editKey]);
 
   function fieldEl(f: Field) {
-    const val = values[f.key] || "";
+    const val = (values[f.key] || "").normalize("NFC");
     return (
       <div key={f.key} className={"field" + (f.half ? " field-half" : "")}>
         <span>
@@ -538,7 +538,7 @@ export default function Composer() {
             <textarea
               className="modal-editor"
               autoFocus
-              value={values[editField.key] || ""}
+              value={(values[editField.key] || "").normalize("NFC")}
               onChange={(e) => onChange(editField.key, e.target.value)}
             />
             <div className="modal-footer">

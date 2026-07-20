@@ -1,6 +1,12 @@
 use futures_util::StreamExt;
+use unicode_normalization::UnicodeNormalization;
 
 const API_URL: &str = "https://api.anthropic.com/v1/messages";
+
+/// Chuẩn hóa tiếng Việt về dạng NFC (ghép dấu vào chữ) để không bị tách dấu khi hiển thị.
+fn nfc(s: &str) -> String {
+    s.nfc().collect()
+}
 const OPENROUTER_URL: &str = "https://openrouter.ai/api/v1/chat/completions";
 
 /// Gọi Claude API dạng streaming. Mỗi đoạn text nhận được sẽ gọi `on_delta`.
@@ -77,8 +83,9 @@ pub async fn stream_message(
             match v["type"].as_str() {
                 Some("content_block_delta") => {
                     if let Some(t) = v["delta"]["text"].as_str() {
-                        full.push_str(t);
-                        on_delta(t.to_string());
+                        let t = nfc(t);
+                        full.push_str(&t);
+                        on_delta(t);
                     }
                 }
                 Some("message_delta") => {
@@ -103,7 +110,7 @@ pub async fn stream_message(
     if full.is_empty() {
         return Err("Không nhận được nội dung từ API".into());
     }
-    Ok(full)
+    Ok(nfc(&full))
 }
 
 /// Gọi Claude qua OpenRouter (chuẩn OpenAI chat completions, SSE).
@@ -183,8 +190,9 @@ pub async fn stream_openrouter(
             }
             if let Some(t) = v["choices"][0]["delta"]["content"].as_str() {
                 if !t.is_empty() {
-                    full.push_str(t);
-                    on_delta(t.to_string());
+                    let t = nfc(t);
+                    full.push_str(&t);
+                    on_delta(t);
                 }
             }
             if let Some(reason) = v["choices"][0]["finish_reason"].as_str() {
@@ -198,5 +206,5 @@ pub async fn stream_openrouter(
     if full.is_empty() {
         return Err("Không nhận được nội dung từ OpenRouter".into());
     }
-    Ok(full)
+    Ok(nfc(&full))
 }
