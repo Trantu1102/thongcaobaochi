@@ -7,7 +7,8 @@ import RichEditor from "./RichEditor";
 type Status = "idle" | "streaming" | "done" | "error";
 
 /** Render read-only: tô sáng 【…】 và in đậm **…** */
-function renderRich(text: string) {
+function renderRich(raw: string) {
+  const text = raw.normalize("NFC");
   const tokens = text.split(/(【[^】]*】|\*\*[^*]+\*\*)/g);
   return tokens.map((t, i) => {
     if (t.startsWith("【") && t.endsWith("】"))

@@ -7,7 +7,7 @@ function escapeHtml(s: string): string {
 
 /** markdown -> HTML: 【x】 thành đoạn bôi vàng (bỏ dấu ngoặc), **x** thành đậm, \n thành <br> */
 export function mdToHtml(md: string): string {
-  const esc = escapeHtml(md);
+  const esc = escapeHtml(md.normalize("NFC"));
   // 【...】 -> <mark> bôi vàng, bỏ luôn cặp ngoặc; kèm inline style để dán ra Word vẫn giữ màu
   const marked = esc.replace(
     /【([^】]*)】/g,
@@ -39,5 +39,8 @@ export function htmlToMd(root: HTMLElement): string {
 
 /** Bỏ dấu markdown để có bản text thuần (cho clipboard text/plain) */
 export function stripMd(md: string): string {
-  return md.replace(/\*\*(.+?)\*\*/g, "$1").replace(/【([^】]*)】/g, "$1");
+  return md
+    .normalize("NFC")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/【([^】]*)】/g, "$1");
 }
