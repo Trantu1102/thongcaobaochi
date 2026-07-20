@@ -196,7 +196,7 @@ export default function Composer() {
     try {
       await generate("press_release", buildBrief(values), draft, (e) => {
         if (e.type === "delta") {
-          setPrText((prev) => prev + e.text);
+          setPrText((prev) => (prev + e.text).normalize("NFC"));
           outRef.current?.scrollTo({ top: 0 });
         } else if (e.type === "error") {
           setPrError(e.message);
@@ -226,7 +226,7 @@ export default function Composer() {
     try {
       await generate(id, brief, draft, (e) => {
         if (e.type === "delta") {
-          setResults((prev) => ({ ...prev, [id]: (prev[id] || "") + e.text }));
+          setResults((prev) => ({ ...prev, [id]: ((prev[id] || "") + e.text).normalize("NFC") }));
           outRef.current?.scrollTo({ top: outRef.current.scrollHeight });
         } else if (e.type === "error") {
           setErrors((prev) => ({ ...prev, [id]: e.message }));
@@ -267,7 +267,7 @@ export default function Composer() {
     setTab("seo");
     try {
       await generate("seo", article, false, (e) => {
-        if (e.type === "delta") setSeoText((prev) => prev + e.text);
+        if (e.type === "delta") setSeoText((prev) => (prev + e.text).normalize("NFC"));
         else if (e.type === "error") setSeoError(e.message);
       });
       setSeoStatus("done");
